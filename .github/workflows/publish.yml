@@ -84,6 +84,6 @@ jobs:
         working-directory: repo_playbooks
         if: steps.check_changes.outputs.has_changes == 'true'
         run: |
-          git fetch origin
-          git branch -f main
+          # git fetch origin
+          # git branch -f main
           git push origin main --force
