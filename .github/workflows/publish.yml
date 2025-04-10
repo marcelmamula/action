@@ -86,4 +86,5 @@ jobs:
         run: |
           # git fetch origin
           # git branch -f main
-          git push origin main --force
+          # git push origin main --force
+          git push origin HEAD:refs/heads/main --force
