@@ -1,3 +1,7 @@
 ---
 original_var: original
 original_var2: original2
+
+
+# fragment_var: fragment
+fragment_var2: fragment2
