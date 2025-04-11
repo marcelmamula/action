@@ -63,7 +63,7 @@ jobs:
 
       - name: Synchronize main with stage
         run: |
-          rsync -a --delete --exclude '.git' repo_playbooks_stage/ repo_playbooks_main/
+          rsync --archive --delete --exclude '.git' repo_playbooks_stage/ repo_playbooks_main/
 
 
       - name: Check for changes
