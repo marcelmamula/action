@@ -18,14 +18,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout code - stage
         uses: actions/checkout@v4
         with:
-          path: repo_playbooks
+          path: repo_playbooks_stage
           ref: stage
-          
+
+      - name: Checkout code - main
+        uses: actions/checkout@v4
+        with:
+          path: repo_playbooks_main
+          ref: main
+
       - name: Transformation tasks
-        working-directory: repo_playbooks
+        working-directory: repo_playbooks_stage
         run: |
           shopt -s nullglob  # Ensures that empty results are empty
 
@@ -55,8 +61,13 @@ jobs:
 
           shopt -u nullglob
 
+      - name: Synchronize main with stage
+        run: |
+          rsync -a --delete --exclude '.git' repo_playbooks_stage/ repo_playbooks_main/
+
+
       - name: Check for changes
-        working-directory: repo_playbooks
+        working-directory: repo_playbooks_main
         id: check_changes
         run: |
           git add .
@@ -67,7 +78,7 @@ jobs:
           fi
 
       - name: Commit changes
-        working-directory: repo_playbooks
+        working-directory: repo_playbooks_main
         if: steps.check_changes.outputs.has_changes == 'true'
         run: |
           git config user.name github-actions
@@ -81,10 +92,7 @@ jobs:
 
 
       - name: Force push changes
-        working-directory: repo_playbooks
+        working-directory: repo_playbooks_main
         if: steps.check_changes.outputs.has_changes == 'true'
         run: |
-          # git fetch origin
-          # git branch -f main
-          # git push origin main --force
-          git push origin HEAD:refs/heads/main --force
+          git push origin main --force
