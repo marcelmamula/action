@@ -58,7 +58,7 @@ jobs:
           if [ -f ./deploy_scenarios/sap_hana_/ansible_requirements.yml ]; then
             ansible-galaxy collection install -r ./deploy_scenarios/sap_hana/ansible_requirements.yml
           else
-            first_file=$(find ./deploy_scenarios/ -name ansible_requirements.yml -print -quit)
+            first_file=$(find ./deploy_scenarios/ -name ansible_requirements_.yml -print -quit)
             if [ -n "$first_file" ]; then
               echo "Using $first_file"
               ansible-galaxy collection install -r "$first_file"
