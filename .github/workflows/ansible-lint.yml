@@ -43,13 +43,14 @@ jobs:
         working-directory: repo_playbooks
         if: github.ref == 'refs/heads/dev'
         run: |
-          ansible-galaxy collection install -r ./common_fragments/vars/ansible_requirements.yml
+          ansible-galaxy collection install -r ./common_fragments/ansible_requirements.yml
 
+        # sap_hana is used as requirement file after transformation
       - name: Install dependencies for Ansible (main)
         working-directory: repo_playbooks
         if: github.ref == 'refs/heads/main'
         run: |
-          ansible-galaxy collection install -r ./some_other_folder/ansible_requirements.yml
+          ansible-galaxy collection install -r ./deploy_scenarios/ansible_requirements.yml
 
       - name: Run ansible-lint
         working-directory: repo_playbooks
