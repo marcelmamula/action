@@ -39,26 +39,24 @@ jobs:
           pip3 install ansible-core==2.18.4
           pip3 install ansible-lint==25.2.1
 
-      # - name: Install dependencies for Ansible (dev)
-      #   working-directory: repo_playbooks
-      #   if: github.ref == 'refs/heads/dev'
-      #   run: |
-      #     ansible-galaxy collection install -r ./common_fragments/ansible_requirements.yml
-
-      #   # sap_hana is used as requirement source after transformation in main
-      # - name: Install dependencies for Ansible (main)
-      #   working-directory: repo_playbooks
-      #   if: github.ref == 'refs/heads/main'
-      #   run: |
-      #     ansible-galaxy collection install -r ./deploy_scenarios/sap_hana/ansible_requirements.yml
-
-      - name: Install dependencies for Ansible (TEST)
+        # dev branch is using shared fragments
+      - name: Install dependencies for Ansible (dev)
         working-directory: repo_playbooks
+        if: github.ref == 'refs/heads/dev'
         run: |
-          if [ -f ./deploy_scenarios/sap_hana_/ansible_requirements.yml ]; then
+          ansible-galaxy collection install -r ./common_fragments/ansible_requirements.yml
+
+        # main branch is using:
+        # - deploy_scenarios/sap_hana if file exists
+        # - else first scenario with ansible_requirements.yml
+      - name: Install dependencies for Ansible (main)
+        working-directory: repo_playbooks
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if [ -f ./deploy_scenarios/sap_hana/ansible_requirements.yml ]; then
             ansible-galaxy collection install -r ./deploy_scenarios/sap_hana/ansible_requirements.yml
           else
-            first_file=$(find ./deploy_scenarios/ -name ansible_requirements_.yml -print -quit)
+            first_file=$(find ./deploy_scenarios/ -name ansible_requirements.yml -print -quit)
             if [ -n "$first_file" ]; then
               echo "Using $first_file"
               ansible-galaxy collection install -r "$first_file"
