@@ -1,0 +1,56 @@
+---
+
+name: ansible-lint of the ansible playbooks for sap
+
+on:
+  # Runs at 10:10 on every Monday
+  schedule:
+    - cron: '10 10 * * 1'
+
+  # Runs on push to dev and main branches
+  push:
+    branches:
+      - dev
+      - main
+
+  # Enable manual start button
+  workflow_dispatch:
+
+jobs:
+  ansible-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+        with:
+          path: repo_playbooks
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies for Python
+        run: |
+          pip3 install --upgrade pip
+          pip3 install ansible==11.4.0
+          pip3 install ansible-compat==4.1.11
+          pip3 install ansible-core==2.18.4
+          pip3 install ansible-lint==25.2.1
+
+      - name: Install dependencies for Ansible (dev)
+        working-directory: repo_playbooks
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          ansible-galaxy collection install -r ./common_fragments/vars/ansible_requirements.yml
+
+      - name: Install dependencies for Ansible (main)
+        working-directory: repo_playbooks
+        if: github.ref == 'refs/heads/main'
+        run: |
+          ansible-galaxy collection install -r ./some_other_folder/ansible_requirements.yml
+
+      - name: Run ansible-lint
+        working-directory: repo_playbooks
+        run: ansible-lint
