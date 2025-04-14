@@ -39,18 +39,33 @@ jobs:
           pip3 install ansible-core==2.18.4
           pip3 install ansible-lint==25.2.1
 
-      - name: Install dependencies for Ansible (dev)
-        working-directory: repo_playbooks
-        if: github.ref == 'refs/heads/dev'
-        run: |
-          ansible-galaxy collection install -r ./common_fragments/ansible_requirements.yml
+      # - name: Install dependencies for Ansible (dev)
+      #   working-directory: repo_playbooks
+      #   if: github.ref == 'refs/heads/dev'
+      #   run: |
+      #     ansible-galaxy collection install -r ./common_fragments/ansible_requirements.yml
 
-        # sap_hana is used as requirement file after transformation
-      - name: Install dependencies for Ansible (main)
+      #   # sap_hana is used as requirement source after transformation in main
+      # - name: Install dependencies for Ansible (main)
+      #   working-directory: repo_playbooks
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     ansible-galaxy collection install -r ./deploy_scenarios/sap_hana/ansible_requirements.yml
+
+      - name: Install dependencies for Ansible (TEST)
         working-directory: repo_playbooks
-        if: github.ref == 'refs/heads/main'
         run: |
-          ansible-galaxy collection install -r ./deploy_scenarios/ansible_requirements.yml
+          if [ -f ./deploy_scenarios/sap_hana_/ansible_requirements.yml ]; then
+            ansible-galaxy collection install -r ./deploy_scenarios/sap_hana/ansible_requirements.yml
+          else
+            first_file=$(find ./deploy_scenarios/ -name ansible_requirements.yml -print -quit)
+            if [ -n "$first_file" ]; then
+              ansible-galaxy collection install -r "$first_file"
+            else
+              echo "No ansible_requirements.yml found in deploy_scenarios"
+              exit 1
+            fi
+          fi
 
       - name: Run ansible-lint
         working-directory: repo_playbooks
